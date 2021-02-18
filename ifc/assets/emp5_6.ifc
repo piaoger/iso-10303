@@ -1,0 +1,143 @@
+ISO-10303-21;
+HEADER;
+
+FILE_DESCRIPTION(('ViewDefinition [CoordinationView_V2.0]'),'2;1');
+FILE_NAME('','',(''),(''),'','','');
+FILE_SCHEMA(('IFC2X3'));
+ENDSEC;
+
+DATA;
+#1=IFCPROJECT('abcdefghijklmnopqrs101', $, 'Project #1', $, $, '','', (#7), #6);
+
+/* Единицы измерений модели */
+#2= IFCSIUNIT(*,.LENGTHUNIT.,$,.METRE.);
+#3= IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);
+#4= IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);
+#5= IFCSIUNIT(*,.PLANEANGLEUNIT.,$,.RADIAN.);
+#6= IFCUNITASSIGNMENT((#2,#3,#4,#5));
+
+/* Контекст */
+#7= IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,0.01,#8,#9);
+#8= IFCAXIS2PLACEMENT3D(#10,$,$);
+#9= IFCDIRECTION((0.,1.));
+#10= IFCCARTESIANPOINT((0.,0.,0.));
+
+#11= IFCCARTESIANPOINT((1.,0.,0.));
+#12= IFCCARTESIANPOINT((0.,1.,0.));
+#13= IFCPOLYLOOP((#10,#11,#12));
+#14= IFCFACEOUTERBOUND(#13,.T.);
+#15= IFCFACE((#14));
+#16= IFCCONNECTEDFACESET((#15));
+#17= IFCFACEBASEDSURFACEMODEL((#16));
+#18= IFCSHAPEREPRESENTATION(#7,'Body','SurfaceModel',(#17));
+#19= IFCPRODUCTDEFINITIONSHAPE($,$,(#18));
+#20= IFCLOCALPLACEMENT($,#8);
+#21= IFCSITE('abcdefghijklmnopqrs102',$,'',$,$,#20,#19,$,.COMPLEX.,$,$,0.,$,$);
+#22= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #1, (#21));
+
+#23= IFCSITE('abcdefghijklmnopqrs103',$,'',$,$,#27,#19,$,.ELEMENT.,$,$,0.,$,$);
+#24= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #21, (#23));
+#25= IFCCARTESIANPOINT((2.,0.,0.));
+#26= IFCAXIS2PLACEMENT3D(#25,$,$);
+#27= IFCLOCALPLACEMENT(#20,#26);
+
+#28= IFCSITE('abcdefghijklmnopqrs104',$,'',$,$,#30,#19,$,.PARTIAL.,$,$,0.,$,$);
+#29= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #23, (#28));
+#30= IFCLOCALPLACEMENT(#27,#26);
+
+#31= IFCBUILDING('abcdefghijklmnopqrs105', $, $, $, $, #20, #33, $, .COMPLEX., $, $, $);
+#32= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #21, (#31));
+#33= IFCPRODUCTDEFINITIONSHAPE($,$,(#34));
+
+#34= IFCSHAPEREPRESENTATION(#7,'Body','SweptSolid',(#35));
+#35= IFCEXTRUDEDAREASOLID(#36,#8,#37,0.5);
+#36= IFCRECTANGLEPROFILEDEF(.AREA.,$,#38,0.5,0.5);
+#37= IFCDIRECTION((0.,0.,1.));
+#38= IFCAXIS2PLACEMENT2D(#39,#9);
+#39= IFCCARTESIANPOINT((0.,0.));
+
+#40= IFCBUILDING('abcdefghijklmnopqrs106', $, $, $, $, #27, #33, $, .ELEMENT., $, $, $);
+#41= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #31, (#40));
+
+#42= IFCBUILDING('abcdefghijklmnopqrs107', $, $, $, $, #30, #33, $, .PARTIAL., $, $, $);
+#43= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #40, (#42));
+
+#44= IFCBUILDING('abcdefghijklmnopqrs108', $, $, $, $, #48, #33, $, .COMPLEX., $, $, $);
+#45= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #1, (#44));
+#46= IFCCARTESIANPOINT((0.,2.,0.));
+#47= IFCAXIS2PLACEMENT3D(#46,$,$);
+#48= IFCLOCALPLACEMENT(#20,#47);
+
+#49= IFCBUILDING('abcdefghijklmnopqrs109', $, $, $, $, #51, #33, $, .ELEMENT., $, $, $);
+#50= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #44, (#49));
+#51= IFCLOCALPLACEMENT(#48,#47);
+
+#52= IFCBUILDING('abcdefghijklmnopqrs109', $, $, $, $, #54, #33, $, .PARTIAL., $, $, $);
+#53= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #49, (#52));
+#54= IFCLOCALPLACEMENT(#51,#47);
+
+#55= IFCBUILDINGSTOREY('abcdefghijklmnopqrs111',$,$,$,'',#87,#89,'',.COMPLEX.,0.);
+#56= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #52, (#55));
+
+#57= IFCSHAPEREPRESENTATION(#7, 'Body', 'Brep', (#58));
+#58= IFCFACETEDBREP(#59);
+#59= IFCCLOSEDSHELL((#80, #81, #82, #83, #84, #85));
+
+#60 = IFCCARTESIANPOINT((0.,0.,0.));
+#61 = IFCCARTESIANPOINT((1.,0.,0.));
+#62 = IFCCARTESIANPOINT((1.,1.,0.));
+#63 = IFCCARTESIANPOINT((0.,1.,0.));
+#64 = IFCCARTESIANPOINT((0.,0.,1.));
+#65 = IFCCARTESIANPOINT((1.,0.,1.));
+#66 = IFCCARTESIANPOINT((1.,1.,1.));
+#67 = IFCCARTESIANPOINT((0.,1.,1.));
+
+#68= IFCPOLYLOOP((#60, #61, #62, #63));
+#69= IFCPOLYLOOP((#64, #65, #66, #67));
+#70= IFCPOLYLOOP((#60, #61, #65, #64));
+#71= IFCPOLYLOOP((#61, #62, #66, #65));
+#72= IFCPOLYLOOP((#62, #63, #67, #66));
+#73= IFCPOLYLOOP((#63, #60, #64, #67));
+
+#74= IFCFACEOUTERBOUND(#68, .T.);
+#75= IFCFACEOUTERBOUND(#69, .T.);
+#76= IFCFACEOUTERBOUND(#70, .T.);
+#77= IFCFACEOUTERBOUND(#71, .T.);
+#78= IFCFACEOUTERBOUND(#72, .T.);
+#79= IFCFACEOUTERBOUND(#73, .T.);
+
+#80= IFCFACE((#74));
+#81= IFCFACE((#75));
+#82= IFCFACE((#76));
+#83= IFCFACE((#77));
+#84= IFCFACE((#78));
+#85= IFCFACE((#79));
+
+#86= IFCCARTESIANPOINT((0.,0.,2.));
+#87= IFCLOCALPLACEMENT(#20,#88);
+#88= IFCAXIS2PLACEMENT3D(#86,$,$);
+#89= IFCPRODUCTDEFINITIONSHAPE($,$,(#57));
+
+#90= IFCBUILDINGSTOREY('abcdefghijklmnopqrs111',$,$,$,'',#92,#89,'',.ELEMENT.,0.);
+#91= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #55, (#90));
+#92= IFCLOCALPLACEMENT(#87,#93);
+#93= IFCAXIS2PLACEMENT3D(#46,$,$);
+
+#94= IFCBUILDINGSTOREY('abcdefghijklmnopqrs111',$,$,$,'',#96,#89,'',.PARTIAL.,0.);
+#95= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #90, (#94));
+#96= IFCLOCALPLACEMENT(#92,#93);
+
+#97= IFCSPACE('abcdefghijklmnopqrs112',$,$,'',$,#98,#89,$,.COMPLEX.,.NOTDEFINED.,$);
+#98= IFCLOCALPLACEMENT(#96,#93);
+#99= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #94, (#97));
+
+#100= IFCSPACE('abcdefghijklmnopqrs113',$,$,'',$,#101,#89,$,.ELEMENT.,.NOTDEFINED.,$);
+#101= IFCLOCALPLACEMENT(#98,#93);
+#102= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #97, (#100));
+
+#103= IFCSPACE('abcdefghijklmnopqrs113',$,$,'',$,#104,#89,$,.PARTIAL.,.NOTDEFINED.,$);
+#104= IFCLOCALPLACEMENT(#101,#93);
+#105= IFCRELAGGREGATES('abcdefghijklmnopqrs110', $, $, $, #100, (#103));
+ENDSEC;
+
+END-ISO-10303-21;

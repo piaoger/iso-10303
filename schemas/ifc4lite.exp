@@ -1,0 +1,45 @@
+SCHEMA IFC4;
+
+TYPE IfcActionRequestTypeEnum = ENUMERATION OF
+  (EMAIL
+  ,FAX
+  ,PHONE
+  ,POST
+  ,VERBAL
+  ,USERDEFINED
+  ,NOTDEFINED);
+END_TYPE;
+
+TYPE IfcLengthMeasure = REAL;
+END_TYPE;
+
+ENTITY IfcCartesianPoint
+  Coordinates : LIST [1:3] OF IfcLengthMeasure;
+END_ENTITY;
+
+ENTITY IfcActionRequest;
+	PredefinedType : OPTIONAL IfcActionRequestTypeEnum;
+  Corner : IfcCartesianPoint;
+END_ENTITY;
+
+FUNCTION IfcListToArray
+(Lis : LIST [0:?] OF GENERIC : T;
+       Low,U : INTEGER) : ARRAY OF GENERIC : T;
+   LOCAL
+     N   : INTEGER;
+     Res : ARRAY [Low:U] OF GENERIC : T;
+   END_LOCAL;
+
+   N := SIZEOF(Lis);
+   IF (N <> (U-Low +1)) THEN
+     RETURN(?);
+   ELSE
+     Res := [Lis[1] : N];
+     REPEAT i := 2 TO N;
+       Res[Low+i-1] := Lis[i];
+     END_REPEAT;
+     RETURN(Res);
+   END_IF;
+END_FUNCTION;
+
+END_SCHEMA;

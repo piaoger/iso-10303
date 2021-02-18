@@ -1,0 +1,21 @@
+[package]
+authors = ["Piaoger Gong <piaoger@yahoo.com>"]
+categories = ["bim"]
+description = "A Rust crate for reading ifc files."
+edition = "2018"
+keywords = ["ifc","ifc4", "ifc3x2"]
+license = "MIT"
+name = "iso-10303-ifc"
+readme = "README.md"
+repository = "https://github.com/piaoger/iso-10303.git"
+version = "0.4.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+iso-10303 = {version = "0.4", path = "../"}
+
+structopt = "0.2"
+
+[profile.release]
+debug = true

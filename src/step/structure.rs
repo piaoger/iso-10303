@@ -3,6 +3,8 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::iter::FromIterator;
 
+use core::marker::PhantomData;
+
 #[derive(Debug)]
 pub enum Parameter {
     TypedParameter(TypedParameter),
@@ -35,8 +37,26 @@ pub struct EntityInstance {
     pub value: Vec<TypedParameter>,
 }
 
+// #[derive(Eq, PartialEq, Hash, Debug, Default)]
+// pub struct EntityRef<T>(pub i64);
+
 #[derive(Eq, PartialEq, Hash, Debug, Default)]
-pub struct EntityRef(pub i64);
+pub struct EntityRef<T>(i64, PhantomData<T>);
+
+impl<T> EntityRef<T>
+{
+    #[inline]
+    pub fn new(index: i64) -> EntityRef<T> {
+        EntityRef(index, PhantomData)
+    }
+
+    #[inline]
+    pub fn inner(&self) -> i64 {
+        self.0
+    }
+}
+
+
 
 #[derive(Debug)]
 pub struct ExchangeFile {
@@ -80,6 +100,7 @@ impl From<Parameter> for i64 {
     fn from(parameter: Parameter) -> Self {
         match parameter {
             Parameter::UnTypedParameter(parameter) => parameter.into(),
+            Parameter::OmittedParameter => 0,
             _ => panic!("can not convert"),
         }
     }
@@ -103,11 +124,11 @@ impl From<Parameter> for String {
     }
 }
 
-impl From<Parameter> for EntityRef {
+impl<T: From<Parameter>> From<Parameter> for EntityRef<T> {
     fn from(parameter: Parameter) -> Self {
         match parameter {
             Parameter::UnTypedParameter(parameter) => parameter.into(),
-            Parameter::OmittedParameter => EntityRef(0),
+            Parameter::OmittedParameter => EntityRef::new(0),
             _ => panic!("can not convert"),
         }
     }
@@ -115,13 +136,14 @@ impl From<Parameter> for EntityRef {
 
 impl<T: From<Parameter>> From<Parameter> for Vec<T> {
     fn from(parameter: Parameter) -> Self {
+
         match parameter {
             Parameter::UnTypedParameter(untyped_parameter) => match untyped_parameter {
                 UnTypedParameter::List(list) => list.into_iter().map(|item| item.into()).collect(),
-                _ => panic!("parameter is not an list"),
+                _ => panic!("parameter is not an list: {:?}", untyped_parameter),
             },
             Parameter::OmittedParameter => Vec::new(),
-            _ => panic!("parameter is not an list"),
+            _ => panic!("cannot convert to Vec"),
         }
     }
 }
@@ -167,6 +189,8 @@ impl From<UnTypedParameter> for i64 {
     fn from(parameter: UnTypedParameter) -> Self {
         match parameter {
             UnTypedParameter::Integer(number) => number,
+            UnTypedParameter::Real(number) => number.round() as i64,
+            UnTypedParameter::Null => 0,
             _ => panic!("can not convert to integer"),
         }
     }
@@ -191,10 +215,11 @@ impl From<UnTypedParameter> for String {
     }
 }
 
-impl From<UnTypedParameter> for EntityRef {
+impl<T: From<Parameter>> From<UnTypedParameter> for EntityRef<T> {
     fn from(parameter: UnTypedParameter) -> Self {
         match parameter {
-            UnTypedParameter::EntityRef(id) => EntityRef(id),
+            UnTypedParameter::EntityRef(id) => EntityRef::new(id),
+            UnTypedParameter::Null => EntityRef::new(0),
             _ => panic!("can not convert"),
         }
     }

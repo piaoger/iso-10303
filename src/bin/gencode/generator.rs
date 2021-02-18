@@ -265,7 +265,10 @@ impl Generator {
                 {
                     // let trait_name = entity_info.trait_name();
                     // quote! {&'a dyn #trait_name}
-                    quote! {EntityRef}
+                    let type_name = format_ident!("{}", name );
+                    quote! {
+                        EntityRef<#type_name>
+                    }
                 } else {
                     let type_name = format_ident!("{}", name.to_camel_case());
                     quote! {#type_name}
@@ -335,6 +338,7 @@ impl Generator {
                             match parameter {
                                 Parameter::UnTypedParameter(untyped_parameter) => match untyped_parameter {
                                     UnTypedParameter::EnumValue(value) => value.into(),
+                                    UnTypedParameter::Null => #ident::default(),
                                     _ => panic!("parameter is not an enum value"),
                                 },
                                 Parameter::OmittedParameter => #ident::default(),
@@ -390,11 +394,11 @@ impl Generator {
             let data_type = self.type_name(&attr.data_type, attr.optional);
             if is_copy_type(&attr.data_type) {
                 quote! {
-                    fn #ident(&self) -> #data_type;
+                    pub fn #ident(&self) -> #data_type;
                 }
             } else {
                 quote! {
-                    fn #ident(&self) -> &#data_type;
+                    pub fn #ident(&self) -> &#data_type;
                 }
             }
         });
@@ -535,15 +539,17 @@ impl Generator {
             .filter(|name| self.entity_infos.contains_key(*name))
             .count();
         let default_variant = if entity_count > 1 {
-            quote! { EntityRef(EntityRef), }
+            let entity_type_name = format_ident!("{}", type_name);
+            quote! { EntityRef(i64), }
         } else {
             quote! {}
         };
         let variants = types.iter().map(|name| {
             if let Some(entity_info) = self.entity_infos.get(name) {
                 let type_name = entity_info.type_name();
+                let entity_type_name = format_ident!("{}", name);
                 quote! {
-                    #type_name(EntityRef)
+                    #type_name(EntityRef<#type_name>)
                 }
             } else {
                 let type_name = format_ident!("{}", name.to_camel_case());
@@ -558,8 +564,9 @@ impl Generator {
             .map(|name| {
                 if let Some(entity_info) = self.entity_infos.get(name) {
                     let type_name = entity_info.type_name();
+                    let entity_type_name = format_ident!("{}", name);
                     quote! {
-                        #type_name(EntityRef::default())
+                        #type_name(EntityRef<#entity_type_name>::default())
                     }
                 } else {
                     let type_name = format_ident!("{}", name.to_camel_case());
@@ -571,16 +578,50 @@ impl Generator {
             .unwrap();
         let create_variants = types
             .iter()
-            .filter(|name| !self.entity_infos.contains_key(*name))
+            .filter(|name| {
+
+                !self.entity_infos.contains_key(*name) })
+
             .map(|name| {
-                let type_name = name.to_shouty_snake_case();
-                let variant = format_ident!("{}", name.to_camel_case());
-                quote! {
-                    #type_name => #ident::#variant(typed_parameter.parameters.into_iter().next().unwrap().into())
+                //println!("typename = {:?}", name);
+                if self.type_infos.contains_key(&*name) {
+
+                        let typeinfo = self.type_infos.get(&*name ).unwrap();
+                        //println!("typeinfo = {:?}", typeinfo.underlying_type);
+                        match &typeinfo.underlying_type  {
+
+                            DataType::Select { types } => {
+                                let type_name = name.to_shouty_snake_case();
+                                let type_names  = types.iter().map(|name| format!("{}", name.to_uppercase())).collect::<Vec<String>>() ;
+                                let variant = format_ident!("{}", name.to_camel_case());
+
+
+                                quote! {
+                                   // #ident::#variant(typed_parameter.parameters.into_iter().next().unwrap().into())
+                                    #(#type_names)|* => {
+                                        #ident::#variant(#variant::from(Parameter::TypedParameter(TypedParameter{type_name: typed_parameter.type_name,parameters: typed_parameter.parameters,})))
+                                    }
+                                }
+                            },
+                            _ => {
+                                let type_name = name.to_uppercase();
+                                let variant = format_ident!("{}", name.to_camel_case());
+                                quote! {
+                                    #type_name => #ident::#variant(typed_parameter.parameters.into_iter().next().unwrap().into())
+                                }
+                            },
+                        }
+
+
+                } else {
+                    quote! {}
                 }
+
+
             })
             .collect::<Vec<_>>();
         let typed_case = if create_variants.len() > 0 {
+
             quote! {
                 Parameter::TypedParameter(typed_parameter) => match typed_parameter.type_name.as_str() {
                     #( #create_variants, )*
@@ -595,14 +636,14 @@ impl Generator {
             let type_name = self.entity_infos[variant].type_name();
             quote! {
                 Parameter::UnTypedParameter(untyped_parameter) => match untyped_parameter {
-                    UnTypedParameter::EntityRef(id) => #ident::#type_name(EntityRef(id)),
+                    UnTypedParameter::EntityRef(id) => #ident::#type_name(EntityRef::new(id)),
                     _ => panic!("parameter is not an instance"),
                 }
             }
         } else if entity_count > 1 {
             quote! {
                 Parameter::UnTypedParameter(untyped_parameter) => match untyped_parameter {
-                    UnTypedParameter::EntityRef(id) => #ident::EntityRef(EntityRef(id)),
+                    UnTypedParameter::EntityRef(id) => #ident::EntityRef(EntityRef::new(id)),
                     _ => panic!("parameter is not an instance"),
                 }
             }
@@ -684,7 +725,7 @@ impl Generator {
                     self.type_ids.entry(type_id).or_insert(vec![]).push(id);
                     self.type_names.entry(type_id).or_insert(std::any::type_name::<T>());
                 }
-                pub fn get_entity<T: Any>(&self, entity_ref: EntityRef ) -> Option<&T> {
+                pub fn get_entity<T: Any>(&self, entity_ref: EntityRef<T> ) -> Option<&T> {
                     self.entities
                         .get(&entity_ref.0)
                         .map(|entity| entity.downcast_ref::<T>())

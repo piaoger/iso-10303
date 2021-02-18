@@ -84,6 +84,18 @@ impl DataType {
             _ => false,
         }
     }
+    pub fn is_select(&self) -> bool {
+        match *self {
+            DataType::Select { .. } => true,
+            _ => false,
+        }
+    }
+    pub fn is_typeref(&self) -> bool {
+        match self {
+            DataType::TypeRef { .. } => true,
+            _ => false,
+        }
+    }
     pub fn type_ref(&self) -> Option<&String> {
         match self {
             DataType::TypeRef { name } => Some(name),

@@ -15,11 +15,14 @@ fn main() {
 
     let mut reader = ExampleReader::new();
     if reader.read("examples/family/family.stp").is_ok() {
+println!(">> {:?}", reader.entities);
+println!(">> {:?}", reader.type_ids);
+
         for male in reader.get_entities::<Male>() {
-            println!("{:?}", male);
+            println!("M{:?}", male);
         }
         for female in reader.get_entities::<Female>() {
-            println!("{:?}", female);
+            println!("F{:?}", female);
         }
     }
 }

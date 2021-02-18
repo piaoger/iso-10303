@@ -21,6 +21,11 @@ Generate reader code:
 ```
 cargo run --release --features=gencode --bin gencode schemas/AP214E3_2010.exp parts/src/ap214.rs Ap214
 cargo run --release --features=gencode --bin gencode schemas/AP203E2_November_2008.exp parts/src/ap203.rs Ap203
+
+cargo run --release --features=gencode --bin gencode schemas/IFC4lite.exp ifc/src/ifc4lite.rs Ifc4Lite
+cargo run --release --features=gencode --bin gencode schemas/IFC4.exp ifc/src/ifc4.rs Ifc4
+cargo run --release --features=gencode --bin gencode schemas/IFC2X3.exp ifc/src/ifc2x3.rs Ifc2x3
+
 cargo build --workspace
 ```
 
@@ -28,6 +33,9 @@ Generate dot graph:
 ```
 cargo run --release --features=gengraph --bin gengraph schemas/AP214E3_2010.exp graphs/ap214.dot
 cargo run --release --features=gengraph --bin gengraph schemas/AP214E3_2010.exp graphs/curve.dot Curve
+
+cargo run --release --features=gengraph --bin gengraph schemas/IFC4.exp graphs/ifc4.dot
+cargo run --release --features=gengraph --bin gengraph schemas/IFC4.exp graphs/ifc4.dot Curve
 ```
 
 STEP related resources:

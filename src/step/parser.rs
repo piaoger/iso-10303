@@ -54,6 +54,8 @@ fn string<'a>() -> Parser<'a, u8, String> {
         | sym(b'f').map(|_| b'\x0C')
         | sym(b'n').map(|_| b'\n')
         | sym(b'r').map(|_| b'\r')
+        | seq(b"X2\\").map(|_| b'_')
+        | seq(b"X0\\").map(|_| b'_')
         | sym(b't').map(|_| b'\t');
     let escape_sequence = sym(b'\\') * special_char;
     let chars = sym(b'\'') * (none_of(b"\\'") | escape_sequence).repeat(0..) - sym(b'\'');
@@ -97,7 +99,9 @@ fn parameter_list<'a>() -> Parser<'a, u8, Vec<Parameter>> {
 
 fn typed_parameter<'a>() -> Parser<'a, u8, TypedParameter> {
     (identifier().map(str::to_string) - space() + parameter_list() - space())
-        .map(|(type_name, parameters)| TypedParameter { type_name, parameters })
+        .map(|(type_name, parameters)| {
+            //println!("t/p:> {:?} / {:?}", type_name, parameters);
+            TypedParameter { type_name, parameters }})
 }
 
 fn untyped_parameter<'a>() -> Parser<'a, u8, UnTypedParameter> {
@@ -110,16 +114,24 @@ fn untyped_parameter<'a>() -> Parser<'a, u8, UnTypedParameter> {
         | string().map(|value| UnTypedParameter::String(value))
         | binary().map(|value| UnTypedParameter::Binary(value))
         | sym(b'$').map(|_| UnTypedParameter::Null)
+
 }
 
 fn entity_instance<'a>() -> Parser<'a, u8, EntityInstance> {
     (entity_id() - space() - sym(b'=') - space()
-        + (typed_parameter().map(|value| vec![value])
+        + (typed_parameter().map(|value| {
+            //println!("v = {:?}", value);
+            vec![value]
+        })
             | sym(b'(') * space() * typed_parameter().repeat(1..) - space() - sym(b')'))
         - space()
         - sym(b';')
         - space())
-    .map(|(id, value)| EntityInstance { id, value })
+    .map(|(id, value)| {
+        //println!("i/v: {:?}/{:?}",id, value );
+        EntityInstance { id, value }
+    })
+
 }
 
 pub fn exchange_file<'a>() -> Parser<'a, u8, ExchangeFile> {
