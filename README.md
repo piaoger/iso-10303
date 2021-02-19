@@ -23,8 +23,8 @@ cargo run --release --features=gencode --bin gencode schemas/AP214E3_2010.exp pa
 cargo run --release --features=gencode --bin gencode schemas/AP203E2_November_2008.exp parts/src/ap203.rs Ap203
 
 cargo run --release --features=gencode --bin gencode schemas/IFC4lite.exp ifc/src/ifc4lite.rs Ifc4Lite
-cargo run --release --features=gencode --bin gencode schemas/IFC4.exp ifc/src/ifc4.rs Ifc4
-cargo run --release --features=gencode --bin gencode schemas/IFC2X3.exp ifc/src/ifc2x3.rs Ifc2x3
+cargo run --release --features=gencode --bin gencode schemas/IFC4/IFC.exp ifc/src/ifc4.rs Ifc4
+cargo run --release --features=gencode --bin gencode schemas/IFC2X3/IFC.exp ifc/src/ifc2x3.rs Ifc2x3
 
 cargo build --workspace
 ```
